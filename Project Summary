@@ -1,0 +1,161 @@
+# ARIMA-Lite Alpha (NVDA) + Reddit Sentiment (plan) — Project Summary
+
+## 1) Objective & Scope
+
+**Goal:** Arrive at your hedge-fund interview with two AI-powered, interview-ready projects:
+
+* **Project A (role-relevant):** A simple, explainable **ARIMA-based trading backtest** that compares a rules-driven, AI-assisted strategy vs. buy-and-hold.
+* **Project B (outside-the-box):** A **Reddit sentiment analyzer** that turns unstructured posts into daily sentiment signals (kept lean for a 2-day window).
+
+**Success criteria:** runnable notebooks, clear charts & metrics, a one-page thesis you can discuss, and explicit “how AI saved time” talking points.
+
+---
+
+## 2) Sequence of Steps (What we did)
+
+### A. Project selection & scoping
+
+1. Reviewed your two initial ideas (ARIMA HFT variant; Reddit sentiment app).
+2. Sized them to a **<2-day build** by trimming scope (daily ARIMA; no Flask UI for sentiment).
+3. Produced detailed **build plans** for both (stack, steps, outputs, talk-track).
+
+### B. ARIMA-Lite Alpha — implementation & debugging
+
+4. **Environment setup**
+
+   * Installed `yfinance`, `pmdarima`, `empyrical` → hit dependency issues.
+5. **Resolve package issues**
+
+   * `empyrical` failed on Py3.12 → replaced with **pure-Python metrics** (CAGR, Sharpe, MaxDD, etc.).
+   * `pmdarima`/NumPy ABI error → switched to **`statsmodels` SARIMAX**.
+6. **Data fetch robustness**
+
+   * `Adj Close` KeyError → replaced with `auto_adjust=True` and a **robust `get_prices`** handling single/multi-ticker outputs.
+7. **Pandas compatibility**
+
+   * `Series.iteritems()` error (pandas 2.x) → shimmed to `items()`.
+8. **Results table fix**
+
+   * Tuple field (`Order`) broke DataFrame creation → stringified tuple and wrapped metrics as a one-row frame.
+9. **Ticker coercion**
+
+   * `TICKER` accidentally set as `["NVDA"]` → coerced to `"NVDA"` and ensured backtest for the chosen key.
+
+### C. Modular notebook structure & NVDA thesis build
+
+10. Broke the notebook into **small, editable cells** (install, imports, helpers, fetch, model select, backtest, run, plots, export).
+11. Added a **single-ticker NVDA flow** with:
+
+    * **Fundamentals snapshot** from Yahoo (price, market cap, P/E, P/B, PEG, growth, FCF, yield).
+    * **Technicals** (20/50/200-day SMAs, RSI(14) + charts).
+    * **ARIMA results** (equity curve, drawdown, positions, metrics table).
+    * Simple **Buy/Hold verdict** logic with clear bullets.
+    * Auto-generated **one-pager (Markdown)** with images & key metrics.
+
+### D. Optional overlays (polish)
+
+12. **Volatility-targeting overlay** (e.g., 15% target with capped leverage) → equity curve + metrics.
+13. **Earnings blackout** (zero exposure ±2 business days around earnings) → curve + metrics.
+14. **Sensitivity mini-grid** (τ no-trade band, costs, refit cadence) → quick Sharpe/CAGR view.
+15. **Comparison table** (Base vs Vol-Target vs Blackout) for slide-ready summary.
+
+### E. Sentiment project (kept lean, ready to start)
+
+16. Finalized the **lightweight plan**: `praw` (+ VADER) or CSV fallback, daily aggregation by ticker, overlay vs. price, and “top-posts as receipts.” (Implementation deferred to preserve time for interview prep.)
+
+---
+
+## 3) Rationale (Why we did it this way)
+
+* **Ship in <2 days:** We favored **simple, credible** choices over complex ones (daily ARIMA; no intraday HFT; no Flask UI).
+* **Stability on Py3.12/JupyterHub:** Switched from fragile C-extension stacks to **`statsmodels` + pure-Python metrics** to avoid build/ABI issues.
+* **Explainability:** Clear rules (long/short/cash with a no-trade band), explicit costs, straightforward charts → easy interview story.
+* **Recruiter credibility:** One polished **ticker thesis** (NVDA) + optional overlays shows the thinking of a junior analyst who can iterate.
+* **AI leverage:** Auto-scaffolding model selection/workflow, not “black box,” so you can **quantify time saved** without hiding logic.
+
+---
+
+## 4) Changes, Iterations & Decisions (and why)
+
+* **`empyrical` → pure-Python metrics:** Avoided Py3.12 packaging failure; ensured portability.
+* **`pmdarima` → `statsmodels` SARIMAX:** Resolved NumPy ABI mismatch; maintained ARIMA functionality with small AIC grid search.
+* **Data fetch:** Switched to `auto_adjust=True` and robust column handling; eliminated “Adj Close” branching.
+* **Pandas API change:** Patched `iteritems()` → `items()` for pandas 2.x compatibility.
+* **Metrics table bug:** Stringified `(p,d,q)` tuple; used a **single-row** DataFrame.
+* **Ticker typing:** Guarded against list vs. string to prevent “unhashable” errors.
+* **Scope control:** Deferred the Reddit web UI and heavy universe expansion to keep delivery high-quality within time constraints.
+
+---
+
+## 5) Final Result & Outputs (relative to the goal)
+
+### What you now have (ARIMA-Lite Alpha for **NVDA**)
+
+* **Runnable, modular notebook** with:
+
+  * **Robust data loader** and **walk-forward SARIMAX** (AIC-selected order).
+  * **Strategy vs buy-and-hold** equity curves, drawdowns, positions.
+  * **Metrics table** (CAGR, Sharpe, MaxDD, HitRate, Turnover, test observations).
+  * **Technicals** (20/50/200 SMAs, RSI).
+  * **Fundamentals snapshot** (valuation & growth fields).
+  * **Buy/Hold verdict** + bullet rationale.
+  * **Auto-generated one-pager (Markdown)** with embedded chart file names for easy PDF export.
+* **Saved artifacts** (interview-ready):
+
+  * `metrics.csv`, `metrics_NVDA.csv`
+  * `equity_NVDA.png`, `drawdown_NVDA.png`, `positions_NVDA.png`
+  * `tech_NVDA.png`, `rsi_NVDA.png`
+  * `fundamentals_NVDA.csv`
+  * `onepager_NVDA.md` (copy to slides / export to PDF)
+* **Optional enhancements included:** volatility-targeting, earnings-blackout, sensitivity grid, and a comparison table CSV.
+
+### What’s ready to start (Sentiment project)
+
+* A **lean, step-by-step plan** to collect posts (Reddit API or CSV), score with **VADER** (or FinBERT as an optional upgrade), aggregate daily, overlay vs price, and export **top posts** as “receipts.”
+* Designed to be completed quickly if you decide to add it before the interview.
+
+---
+
+## 6) How AI accelerated the work (talking points)
+
+* **Model selection & scaffolding:** Auto-generated SARIMAX grid search code, walk-forward logic, and metrics—saved hours vs. manual research and coding.
+* **Debug velocity:** Rapid fixes for dependency & API changes (empyrical, pmdarima, pandas 2.x) delivered a stable build without chasing environment issues.
+* **Packaging:** Auto-drafted a **one-pager thesis** and polished overlays (vol targeting, blackout) so you could focus on investment reasoning, not boilerplate.
+
+---
+
+## 7) Limitations & Risk Notes
+
+* **Simple costs & sizing:** Costs modeled as per-switch bps; no borrow fees/slippage modeling; no volatility scaling unless you enable the overlay.
+* **Single-name focus:** Demonstration on NVDA; not a diversified, execution-ready strategy.
+* **ARIMA’s scope:** Linear, univariate; no regime shifts/features (macro, cross-asset signals). Sensitivity/overlays mitigate but don’t remove this.
+* **Fundamentals via Yahoo:** Convenient but noisy; treat as indicative, not audited.
+
+---
+
+## 8) Recommended Next Steps (post-interview or if time allows)
+
+* **Finish the Reddit Sentiment notebook** for 1–2 tickers (TSLA/GME or NVDA) with VADER + top-posts table and price overlay.
+* **Paper-trade** the ARIMA strategy and variants (base, vol-target, blackout) for several weeks.
+* **Risk controls:** Add volatility targeting to base results and consider a cap on daily position change; test higher trade costs.
+* **Universe expansion:** Run the same framework across a basket (10–20 names) and compare cross-sectional performance.
+* **Feature extension:** Try simple feature adds (returns momentum, regime filter with SMA trend, earnings calendar awareness).
+
+---
+
+## 9) Deliverables Checklist (for your folder)
+
+* **Code:** modular Jupyter notebook (cells 0–9 core; A–H NVDA pack; J–M overlays).
+* **Data/Exports:**
+
+  * `metrics.csv`, `metrics_NVDA.csv`, `{TICKER}_strategy_variants.csv`
+  * `equity_NVDA.png`, `drawdown_NVDA.png`, `positions_NVDA.png`
+  * `tech_NVDA.png`, `rsi_NVDA.png`
+  * `fundamentals_NVDA.csv`
+  * `onepager_NVDA.md` (export to PDF)
+
+---
+
+### One-sentence summary for your interview
+
+> “In under two days I built a robust, AI-assisted ARIMA framework that generates a defensible Buy/Hold thesis for NVDA, complete with fundamentals, technicals, clean backtests with costs, and optional risk overlays—plus a ready plan for an alt-data Reddit sentiment signal—showing how I used AI to compress days of prototyping into hours while keeping the process transparent and interview-ready.”
